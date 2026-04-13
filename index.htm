@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Workspace · Yagnesh</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#000;--s1:rgba(255,255,255,.045);--s2:rgba(255,255,255,.075);--s3:rgba(255,255,255,.11);
+  --b1:rgba(255,255,255,.07);--b2:rgba(255,255,255,.13);
+  --t1:#fff;--t2:rgba(255,255,255,.55);--t3:rgba(255,255,255,.28);--t4:rgba(255,255,255,.13);
+  --blue:#0A84FF;--green:#30D158;--orange:#FF9F0A;--red:#FF453A;--purple:#BF5AF2;--teal:#5AC8FA;
+  --font:'Plus Jakarta Sans',-apple-system,sans-serif;
+  --r1:12px;--r2:18px;--r3:22px;
+}
+html{font-size:16px;scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--t1);font-family:var(--font);-webkit-font-smoothing:antialiased;min-height:100vh;}
+a{color:inherit;text-decoration:none;}
+button{cursor:pointer;font-family:var(--font);}
+
+/* ── LAYOUT ── */
+.wrap{max-width:780px;margin:0 auto;padding:0 28px 80px;}
+
+/* ── HEADER ── */
+header{padding:56px 0 40px;}
+.hdr-top{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:24px;}
+.brand{font-size:10.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--t4);margin-bottom:10px;}
+.page-title{font-size:clamp(38px,6vw,60px);font-weight:800;letter-spacing:-.04em;line-height:1;
+  background:linear-gradient(140deg,#fff 50%,rgba(255,255,255,.38));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.hdr-right{text-align:right;flex-shrink:0;padding-top:4px;}
+.hdr-date{font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--t4);margin-bottom:4px;}
+.hdr-time{font-size:22px;font-weight:300;letter-spacing:-.02em;color:var(--t3);}
+
+/* ── STATS ── */
+.stats{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:22px;}
+.stat{padding:5px 14px;border-radius:100px;font-size:12px;font-weight:700;letter-spacing:-.01em;transition:opacity .2s;}
+.sp{background:rgba(255,159,10,.13);color:#FF9F0A;}
+.sd{background:rgba(48,209,88,.12);color:#30D158;}
+.so{background:rgba(255,69,58,.13);color:#FF453A;}
+.st{background:rgba(255,255,255,.07);color:rgba(255,255,255,.38);}
+
+/* ── PROGRESS ── */
+.prog-wrap{margin-bottom:40px;}
+.prog-lbl{display:flex;justify-content:space-between;margin-bottom:9px;}
+.prog-lbl span{font-size:10.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--t4);}
+.prog-bar{height:3px;background:rgba(255,255,255,.06);border-radius:100px;overflow:hidden;}
+.prog-fill{height:100%;background:linear-gradient(90deg,#0A84FF,#30D158);border-radius:100px;transition:width .55s cubic-bezier(.25,.46,.45,.94);}
+
+/* ── CONTROLS ── */
+.controls{display:flex;gap:9px;flex-wrap:wrap;margin-bottom:22px;align-items:center;}
+.search-wrap{flex:1;min-width:180px;position:relative;}
+.search-icon{position:absolute;left:13px;top:50%;transform:translateY(-50%);opacity:.25;pointer-events:none;}
+.search-inp{width:100%;background:var(--s1);border:1px solid var(--b1);border-radius:var(--r1);
+  padding:10px 13px 10px 37px;font-family:var(--font);font-size:13px;font-weight:500;color:var(--t1);outline:none;transition:all .22s;}
+.search-inp::placeholder{color:var(--t4);}
+.search-inp:focus{background:var(--s2);border-color:rgba(10,132,255,.5);box-shadow:0 0 0 3px rgba(10,132,255,.1);}
+.sel-wrap{position:relative;}
+.ctrl-sel{background:var(--s1);border:1px solid var(--b1);border-radius:var(--r1);padding:10px 34px 10px 13px;
+  font-family:var(--font);font-size:13px;font-weight:600;color:var(--t2);outline:none;appearance:none;transition:all .2s;}
+.ctrl-sel:focus{background:var(--s2);border-color:rgba(10,132,255,.4);}
+.sel-arr{position:absolute;right:12px;top:50%;transform:translateY(-50%);pointer-events:none;opacity:.28;}
+.ctrl-btn{background:var(--s1);border:1px solid var(--b1);border-radius:var(--r1);padding:10px 15px;
+  font-size:12px;font-weight:700;color:var(--t3);transition:all .2s;white-space:nowrap;letter-spacing:-.01em;}
+.ctrl-btn:hover{background:rgba(255,69,58,.1);color:#FF453A;border-color:rgba(255,69,58,.2);}
+.ctrl-btn.kbd-hint::after{content:attr(data-key);margin-left:6px;font-size:9px;opacity:.5;
+  background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1);border-radius:4px;padding:1px 5px;}
+
+/* ── ADD CARD ── */
+.add-section{margin-bottom:26px;}
+.add-card{background:var(--s1);border:1px solid var(--b1);border-radius:var(--r3);padding:20px 22px;transition:all .25s;}
+.add-card:focus-within{background:var(--s2);border-color:rgba(10,132,255,.42);box-shadow:0 0 0 3px rgba(10,132,255,.08);}
+.add-top{display:flex;align-items:center;gap:13px;margin-bottom:14px;}
+.add-ico{opacity:.2;flex-shrink:0;}
+.add-inp{background:transparent;border:none;outline:none;font-family:var(--font);font-size:15px;font-weight:500;
+  color:var(--t1);flex:1;letter-spacing:-.01em;}
+.add-inp::placeholder{color:rgba(255,255,255,.18);}
+.note-row{margin-bottom:15px;padding-left:31px;}
+.note-inp{width:100%;background:transparent;border:none;outline:none;font-family:var(--font);
+  font-size:12.5px;font-weight:400;color:var(--t3);resize:none;line-height:1.5;}
+.note-inp::placeholder{color:rgba(255,255,255,.12);}
+.add-bottom{display:flex;gap:7px;align-items:center;flex-wrap:wrap;padding-left:31px;}
+.chip-row{display:flex;gap:5px;flex-wrap:wrap;}
+.chip{border:none;font-family:var(--font);font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;
+  padding:4px 12px;border-radius:100px;transition:all .2s cubic-bezier(.25,.46,.45,.94);opacity:.3;}
+.chip.on{opacity:1;transform:scale(1.06);}
+.pchip{background:transparent;border:1px solid transparent;font-family:var(--font);font-size:10px;font-weight:700;
+  letter-spacing:.04em;text-transform:uppercase;padding:4px 11px;border-radius:100px;transition:all .2s;opacity:.32;}
+.pchip.on{opacity:1;}
+.due-inp{background:rgba(255,255,255,.04);border:1px solid var(--b1);border-radius:8px;padding:5px 11px;
+  font-family:var(--font);font-size:11px;font-weight:600;color:var(--t2);outline:none;transition:all .2s;}
+.due-inp:focus{border-color:rgba(10,132,255,.4);}
+.due-inp::-webkit-calendar-picker-indicator{filter:invert(1);opacity:.25;cursor:pointer;}
+.add-btn{background:#0A84FF;border:none;color:#fff;font-family:var(--font);font-weight:700;font-size:13px;
+  padding:9px 22px;border-radius:100px;transition:all .2s cubic-bezier(.25,.46,.45,.94);white-space:nowrap;letter-spacing:-.01em;margin-left:auto;}
+.add-btn:hover{background:#1e8fff;transform:scale(1.04);}
+.add-btn:active{transform:scale(.96);}
+
+/* ── FILTER TABS ── */
+.ftabs{display:flex;gap:2px;background:var(--s1);border-radius:var(--r1);padding:4px;margin-bottom:22px;}
+.ftab{flex:1;background:none;border:none;font-family:var(--font);font-size:12px;font-weight:700;
+  padding:7px 10px;border-radius:9px;color:var(--t3);transition:all .2s;letter-spacing:-.01em;white-space:nowrap;}
+.ftab:hover{color:var(--t2);}
+.ftab.on{background:rgba(255,255,255,.1);color:var(--t1);}
+
+/* ── TASK LIST ── */
+.task-card{background:var(--s1);border:1px solid var(--b1);border-radius:var(--r3);overflow:hidden;margin-bottom:10px;}
+.t-item{display:flex;align-items:flex-start;gap:13px;padding:15px 20px;transition:background .15s;position:relative;}
+.t-item:not(:last-child){border-bottom:1px solid rgba(255,255,255,.04);}
+.t-item:hover{background:rgba(255,255,255,.025);}
+.t-item.entering{animation:tin .36s cubic-bezier(.25,.46,.45,.94) both;}
+.t-item.leaving{animation:tout .24s cubic-bezier(.55,0,1,.45) forwards;pointer-events:none;}
+@keyframes tin{from{opacity:0;transform:translateY(9px);}to{opacity:1;transform:translateY(0);}}
+@keyframes tout{to{opacity:0;transform:translateX(18px);max-height:0;padding-top:0;padding-bottom:0;}}
+.chk-col{padding-top:1px;flex-shrink:0;}
+.chk{width:21px;height:21px;border-radius:50%;border:1.8px solid rgba(255,255,255,.14);
+  display:flex;align-items:center;justify-content:center;transition:all .28s cubic-bezier(.34,1.56,.64,1);background:transparent;}
+.chk:hover{border-color:rgba(255,255,255,.38);transform:scale(1.12);}
+.chk.done{background:#30D158;border-color:#30D158;transform:scale(1.05);}
+.chk svg{opacity:0;transform:scale(.35) rotate(-12deg);transition:all .22s cubic-bezier(.34,1.56,.64,1);}
+.chk.done svg{opacity:1;transform:scale(1) rotate(0);}
+.t-body{flex:1;min-width:0;}
+.t-text{font-size:14px;font-weight:500;color:rgba(255,255,255,.88);letter-spacing:-.01em;
+  line-height:1.55;cursor:pointer;transition:all .3s;word-break:break-word;}
+.t-text:hover{color:#fff;}
+.t-text.done{opacity:.22;text-decoration:line-through;}
+.t-edit{background:rgba(10,132,255,.07);border:1px solid rgba(10,132,255,.35);border-radius:8px;
+  outline:none;font-family:var(--font);font-size:14px;font-weight:500;color:var(--t1);
+  letter-spacing:-.01em;width:100%;padding:4px 10px;margin-bottom:4px;}
+.t-note{font-size:12px;color:var(--t3);line-height:1.55;margin-top:4px;margin-bottom:5px;font-weight:400;}
+.t-meta{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-top:6px;}
+.tbadge{font-size:9.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:2px 8px;border-radius:100px;}
+.pdot{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
+.plbl{font-size:10px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;}
+.dlbl{font-size:11px;font-weight:600;color:var(--t3);}
+.dlbl.overdue{color:#FF453A;}
+.dlbl.today{color:#FF9F0A;}
+.dlbl.soon{color:#FF9F0A;}
+.clbl{font-size:10px;color:var(--t4);font-weight:500;}
+.t-acts{display:flex;gap:3px;opacity:0;transition:opacity .15s;flex-shrink:0;padding-top:1px;}
+.t-item:hover .t-acts{opacity:1;}
+.abt{background:none;border:none;width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;transition:all .18s;color:var(--t3);}
+.abt.edit:hover{background:rgba(10,132,255,.12);color:#0A84FF;}
+.abt.del:hover{background:rgba(255,69,58,.12);color:#FF453A;}
+.abt.pin:hover{background:rgba(255,159,10,.12);color:#FF9F0A;}
+
+/* ── EMPTY ── */
+.empty{text-align:center;padding:80px 20px;}
+.empty-ico{font-size:36px;margin-bottom:14px;opacity:.2;}
+.empty-txt{font-size:14px;color:var(--t3);font-weight:500;letter-spacing:-.01em;}
+
+/* ── FOOTER ── */
+footer{border-top:1px solid rgba(255,255,255,.04);padding:22px 0;margin-top:16px;
+  display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;}
+.ft-left{font-size:11px;color:var(--t4);font-weight:700;letter-spacing:-.01em;}
+.ft-right{display:flex;gap:14px;}
+.kbds{display:flex;align-items:center;gap:4px;font-size:11px;color:var(--t4);font-weight:600;}
+.key{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);border-radius:4px;padding:1px 6px;font-size:10px;}
+
+/* ── TOAST ── */
+.toast{position:fixed;bottom:32px;left:50%;transform:translateX(-50%) translateY(20px);
+  background:rgba(30,30,30,.95);border:1px solid rgba(255,255,255,.1);border-radius:100px;
+  padding:10px 22px;font-size:13px;font-weight:600;color:#fff;pointer-events:none;
+  opacity:0;transition:all .3s cubic-bezier(.25,.46,.45,.94);backdrop-filter:blur(20px);
+  white-space:nowrap;z-index:999;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+/* ── PINNED HIGHLIGHT ── */
+.t-item.pinned{border-left:2px solid #FF9F0A;}
+
+::-webkit-scrollbar{width:0;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- HEADER -->
+  <header>
+    <div class="hdr-top">
+      <div>
+        <div class="brand">Personal Workspace</div>
+        <div class="page-title">My Todos</div>
+      </div>
+      <div class="hdr-right">
+        <div class="hdr-date" id="hdrDate">—</div>
+        <div class="hdr-time" id="hdrTime">—</div>
+      </div>
+    </div>
+    <div class="stats" id="statsRow"></div>
+    <div class="prog-wrap">
+      <div class="prog-lbl">
+        <span>Completion</span>
+        <span id="progPct">0%</span>
+      </div>
+      <div class="prog-bar"><div class="prog-fill" id="progFill" style="width:0%"></div></div>
+    </div>
+  </header>
+
+  <!-- CONTROLS -->
+  <div class="controls">
+    <div class="search-wrap">
+      <svg class="search-icon" width="14" height="14" viewBox="0 0 14 14" fill="none">
+        <circle cx="6" cy="6" r="4.5" stroke="white" stroke-width="1.4"/>
+        <path d="M9.5 9.5L12.5 12.5" stroke="white" stroke-width="1.4" stroke-linecap="round"/>
+      </svg>
+      <input class="search-inp" id="searchInp" placeholder="Search tasks…" oninput="render()"/>
+    </div>
+    <div class="sel-wrap">
+      <select class="ctrl-sel" id="tagFilter" onchange="render()">
+        <option value="">All tags</option>
+        <option value="design">Design</option>
+        <option value="code">Code</option>
+        <option value="study">Study</option>
+        <option value="personal">Personal</option>
+        <option value="urgent">Urgent</option>
+      </select>
+      <svg class="sel-arr" width="10" height="6" viewBox="0 0 10 6" fill="none"><path d="M1 1l4 4 4-4" stroke="white" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
+    <div class="sel-wrap">
+      <select class="ctrl-sel" id="sortBy" onchange="render()">
+        <option value="pinned">Pinned first</option>
+        <option value="newest">Newest first</option>
+        <option value="oldest">Oldest first</option>
+        <option value="priority">By priority</option>
+        <option value="due">By due date</option>
+        <option value="alpha">A → Z</option>
+      </select>
+      <svg class="sel-arr" width="10" height="6" viewBox="0 0 10 6" fill="none"><path d="M1 1l4 4 4-4" stroke="white" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
+    <button class="ctrl-btn" onclick="clearDone()">Clear done</button>
+    <button class="ctrl-btn" onclick="exportTasks()">Export</button>
+  </div>
+
+  <!-- ADD TASK -->
+  <div class="add-section">
+    <div class="add-card">
+      <div class="add-top">
+        <svg class="add-ico" width="18" height="18" viewBox="0 0 18 18" fill="none">
+          <circle cx="9" cy="9" r="7.5" stroke="white" stroke-width="1.5"/>
+          <path d="M9 5.5v7M5.5 9h7" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+        <input class="add-inp" id="addInp" placeholder="What needs to get done?"/>
+      </div>
+      <div class="note-row">
+        <input class="note-inp" id="noteInp" placeholder="Add a note… (optional)"/>
+      </div>
+      <div class="add-bottom">
+        <div class="chip-row" id="tagChips"></div>
+        <div class="chip-row" id="priChips"></div>
+        <input type="date" class="due-inp" id="dueInp"/>
+        <button class="add-btn" onclick="addTask()">Add Task ↵</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- FILTER TABS -->
+  <div class="ftabs">
+    <button class="ftab on" onclick="setFilter('all',this)">All</button>
+    <button class="ftab" onclick="setFilter('pending',this)">Pending</button>
+    <button class="ftab" onclick="setFilter('done',this)">Done</button>
+    <button class="ftab" onclick="setFilter('overdue',this)">Overdue</button>
+    <button class="ftab" onclick="setFilter('today',this)">Today</button>
+    <button class="ftab" onclick="setFilter('pinned',this)">Pinned</button>
+  </div>
+
+  <!-- TASK LIST -->
+  <div id="taskList"></div>
+
+  <!-- FOOTER -->
+  <footer>
+    <span class="ft-left">yagnikpatel22.github.io</span>
+    <div class="ft-right">
+      <div class="kbds"><span class="key">⏎</span> add</div>
+      <div class="kbds"><span class="key">/</span> search</div>
+      <div class="kbds"><span class="key">Esc</span> cancel</div>
+    </div>
+  </footer>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ─── CONSTANTS ────────────────────────────────────────────────────
+const TAGS = {
+  design:   {c:'#BF9354',bg:'rgba(191,147,84,.14)'},
+  code:     {c:'#5AC8FA',bg:'rgba(90,200,250,.12)'},
+  study:    {c:'#BF5AF2',bg:'rgba(191,90,242,.12)'},
+  personal: {c:'#FF6B81',bg:'rgba(255,107,129,.12)'},
+  urgent:   {c:'#FF453A',bg:'rgba(255,69,58,.13)'},
+};
+const PRI = {
+  high:   {c:'#FF453A',bg:'rgba(255,69,58,.12)',lbl:'High',ord:0},
+  medium: {c:'#FF9F0A',bg:'rgba(255,159,10,.12)',lbl:'Med',ord:1},
+  low:    {c:'#30D158',bg:'rgba(48,209,88,.11)',lbl:'Low',ord:2},
+};
+
+// ─── STATE ────────────────────────────────────────────────────────
+let tasks   = JSON.parse(localStorage.getItem('ws_tasks_v3') || '[]');
+let selTag  = 'code';
+let selPri  = 'medium';
+let filter  = 'all';
+let editing = null;
+
+function save() { localStorage.setItem('ws_tasks_v3', JSON.stringify(tasks)); }
+
+// ─── DATE / TIME ──────────────────────────────────────────────────
+const today = () => new Date().toISOString().slice(0,10);
+function tick() {
+  const n = new Date();
+  document.getElementById('hdrDate').textContent =
+    n.toLocaleDateString('en-IN',{weekday:'short',day:'numeric',month:'short',year:'numeric'}).toUpperCase();
+  document.getElementById('hdrTime').textContent =
+    n.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',hour12:true});
+}
+setInterval(tick, 1000);
+
+function dueStatus(d) {
+  if (!d) return null;
+  const t = today();
+  if (d < t) return 'overdue';
+  if (d === t) return 'today';
+  const diff = (new Date(d) - new Date()) / 86400000;
+  return diff <= 3 ? 'soon' : 'future';
+}
+function fmtDue(d) {
+  if (!d) return '';
+  const t = today();
+  if (d === t) return '● Due today';
+  if (d < t) {
+    const days = Math.round((new Date(t+'T00:00:00') - new Date(d+'T00:00:00')) / 86400000);
+    return `▲ Overdue ${days}d`;
+  }
+  return 'Due ' + new Date(d+'T00:00:00').toLocaleDateString('en-IN',{day:'numeric',month:'short'});
+}
+function fmtDate(ts) {
+  return new Date(ts).toLocaleDateString('en-IN',{day:'2-digit',month:'short'});
+}
+
+// ─── CHIPS ────────────────────────────────────────────────────────
+function buildChips() {
+  const tc = document.getElementById('tagChips');
+  tc.innerHTML = '';
+  Object.entries(TAGS).forEach(([tag,{c,bg}]) => {
+    const b = document.createElement('button');
+    b.className = 'chip'+(selTag===tag?' on':'');
+    b.textContent = tag; b.style.background = bg; b.style.color = c;
+    b.onclick = () => { selTag = tag; buildChips(); };
+    tc.appendChild(b);
+  });
+  const pc = document.getElementById('priChips');
+  pc.innerHTML = '';
+  Object.entries(PRI).forEach(([p,{c,bg,lbl}]) => {
+    const b = document.createElement('button');
+    b.className = 'pchip'+(selPri===p?' on':'');
+    b.textContent = '● '+lbl; b.style.color = c;
+    if (selPri===p){b.style.borderColor=c;b.style.background=bg;}
+    b.onclick = () => { selPri = p; buildChips(); };
+    pc.appendChild(b);
+  });
+}
+
+// ─── TOAST ────────────────────────────────────────────────────────
+let _toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(_toastTimer);
+  _toastTimer = setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+// ─── ADD TASK ─────────────────────────────────────────────────────
+function addTask() {
+  const txt = document.getElementById('addInp').value.trim();
+  if (!txt) { document.getElementById('addInp').focus(); return; }
+  tasks.unshift({
+    id: Date.now(),
+    text: txt,
+    note: document.getElementById('noteInp').value.trim(),
+    tag: selTag, priority: selPri, done: false, pinned: false,
+    dueDate: document.getElementById('dueInp').value,
+    createdAt: Date.now(), completedAt: null,
+  });
+  document.getElementById('addInp').value = '';
+  document.getElementById('noteInp').value = '';
+  document.getElementById('dueInp').value = '';
+  save(); render();
+  showToast('Task added ✓');
+}
+
+// ─── ACTIONS ─────────────────────────────────────────────────────
+function toggle(id) {
+  const t = tasks.find(t=>t.id===id); if(!t) return;
+  t.done = !t.done; t.completedAt = t.done ? Date.now() : null;
+  if (t.done) showToast('Done! 🎉');
+  save(); render();
+}
+function del(id) {
+  const el = document.getElementById('ti-'+id);
+  if (el) {
+    el.classList.add('leaving');
+    setTimeout(() => { tasks = tasks.filter(t=>t.id!==id); save(); render(); }, 220);
+  } else { tasks = tasks.filter(t=>t.id!==id); save(); render(); }
+  showToast('Deleted');
+}
+function pin(id) {
+  const t = tasks.find(t=>t.id===id); if(!t) return;
+  t.pinned = !t.pinned;
+  showToast(t.pinned ? 'Pinned 📌' : 'Unpinned');
+  save(); render();
+}
+function startEdit(id) { editing = id; render(); setTimeout(()=>{ const i=document.getElementById('ei-'+id); if(i){i.focus();i.select();} },20); }
+function saveEdit(id) {
+  const inp = document.getElementById('ei-'+id); if(!inp) return;
+  const v = inp.value.trim();
+  if (v) { const t=tasks.find(t=>t.id===id); if(t) t.text=v; }
+  editing = null; save(); render();
+}
+function cancelEdit() { editing = null; render(); }
+function clearDone() {
+  const c = tasks.filter(t=>t.done).length;
+  tasks = tasks.filter(t=>!t.done); save(); render();
+  showToast(`Cleared ${c} task${c!==1?'s':''}`);
+}
+
+// ─── EXPORT ─────────────────────────────────────────────────────
+function exportTasks() {
+  const lines = ['# My Workspace — Exported '+new Date().toLocaleDateString('en-IN'),''];
+  const pen = tasks.filter(t=>!t.done);
+  const don = tasks.filter(t=>t.done);
+  if (pen.length) {
+    lines.push('## Pending');
+    pen.forEach(t => {
+      lines.push(`- [ ] [${t.priority.toUpperCase()}] [${t.tag}] ${t.text}${t.dueDate?' (due '+t.dueDate+')':''}${t.note?' — '+t.note:''}`)
+    });
+    lines.push('');
+  }
+  if (don.length) {
+    lines.push('## Done');
+    don.forEach(t => lines.push(`- [x] ${t.text}`));
+  }
+  const blob = new Blob([lines.join('\n')], {type:'text/markdown'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'workspace-'+today()+'.md';
+  a.click(); URL.revokeObjectURL(a.href);
+  showToast('Exported as Markdown ↓');
+}
+
+// ─── FILTER / SORT ────────────────────────────────────────────────
+function setFilter(f, btn) {
+  filter = f;
+  document.querySelectorAll('.ftab').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  render();
+}
+function getFiltered() {
+  let list = [...tasks];
+  const q   = document.getElementById('searchInp').value.trim().toLowerCase();
+  const tf  = document.getElementById('tagFilter').value;
+  const sb  = document.getElementById('sortBy').value;
+  if (q)  list = list.filter(t=>t.text.toLowerCase().includes(q)||(t.note||'').toLowerCase().includes(q));
+  if (tf) list = list.filter(t=>t.tag===tf);
+  if (filter==='pending') list = list.filter(t=>!t.done);
+  else if (filter==='done')    list = list.filter(t=>t.done);
+  else if (filter==='overdue') list = list.filter(t=>!t.done&&t.dueDate&&t.dueDate<today());
+  else if (filter==='today')   list = list.filter(t=>!t.done&&t.dueDate===today());
+  else if (filter==='pinned')  list = list.filter(t=>t.pinned);
+  const po = {high:0,medium:1,low:2};
+  if (sb==='pinned')   list.sort((a,b)=>(b.pinned?1:0)-(a.pinned?1:0)||(b.createdAt-a.createdAt));
+  else if (sb==='newest')   list.sort((a,b)=>b.createdAt-a.createdAt);
+  else if (sb==='oldest')   list.sort((a,b)=>a.createdAt-b.createdAt);
+  else if (sb==='priority') list.sort((a,b)=>(po[a.priority]??1)-(po[b.priority]??1));
+  else if (sb==='due')      list.sort((a,b)=>{ if(!a.dueDate&&!b.dueDate)return 0; if(!a.dueDate)return 1; if(!b.dueDate)return -1; return a.dueDate.localeCompare(b.dueDate); });
+  else if (sb==='alpha')    list.sort((a,b)=>a.text.localeCompare(b.text));
+  return list;
+}
+
+// ─── RENDER ──────────────────────────────────────────────────────
+function render() {
+  tick();
+  const pending = tasks.filter(t=>!t.done).length;
+  const done    = tasks.filter(t=>t.done).length;
+  const overdue = tasks.filter(t=>!t.done&&t.dueDate&&t.dueDate<today()).length;
+  const pct     = tasks.length ? Math.round(done/tasks.length*100) : 0;
+
+  document.getElementById('statsRow').innerHTML =
+    `<div class="stat sp">${pending} pending</div>
+     <div class="stat sd">${done} done</div>
+     ${overdue>0?`<div class="stat so">${overdue} overdue</div>`:''}
+     <div class="stat st">${tasks.length} total</div>`;
+  document.getElementById('progFill').style.width = pct+'%';
+  document.getElementById('progPct').textContent  = pct+'%';
+
+  const list = getFiltered();
+  const container = document.getElementById('taskList');
+  container.innerHTML = '';
+
+  if (!list.length) {
+    const msgs = {all:'No tasks yet. Add one above!',pending:"You're all clear! 🎉",done:'No completed tasks.',overdue:'No overdue tasks. Well done!',today:'Nothing due today.',pinned:'No pinned tasks.'};
+    container.innerHTML = `<div class="empty"><div class="empty-ico">${filter==='done'?'✓':'◎'}</div><div class="empty-txt">${msgs[filter]||'No tasks found.'}</div></div>`;
+    buildChips(); return;
+  }
+
+  const card = document.createElement('div');
+  card.className = 'task-card';
+
+  list.forEach((task, i) => {
+    const {c:tc,bg:tbg} = TAGS[task.tag]||{c:'#888',bg:'rgba(136,136,136,.1)'};
+    const {c:pc}        = PRI[task.priority]||PRI.medium;
+    const ds = dueStatus(task.dueDate);
+    const isEditing = editing === task.id;
+
+    const item = document.createElement('div');
+    item.className = 't-item entering'+(task.pinned?' pinned':'');
+    item.id = 'ti-'+task.id;
+    item.style.animationDelay = (i*.04)+'s';
+
+    item.innerHTML = `
+      <div class="chk-col">
+        <div class="chk${task.done?' done':''}" onclick="toggle(${task.id})">
+          <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
+            <path d="M1 4L3.5 6.5L9 1" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+      </div>
+      <div class="t-body">
+        ${isEditing
+          ? `<input class="t-edit" id="ei-${task.id}" value="${task.text.replace(/"/g,'&quot;')}"
+               onkeydown="if(event.key==='Enter')saveEdit(${task.id});if(event.key==='Escape')cancelEdit();"
+               onblur="saveEdit(${task.id})" />`
+          : `<div class="t-text${task.done?' done':''}" ondblclick="startEdit(${task.id})">${task.text}</div>`
+        }
+        ${task.note ? `<div class="t-note">${task.note}</div>` : ''}
+        <div class="t-meta">
+          <span class="tbadge" style="background:${tbg};color:${tc}">${task.tag}</span>
+          <span class="pdot" style="background:${pc}"></span>
+          <span class="plbl" style="color:${pc}">${(PRI[task.priority]||PRI.medium).lbl}</span>
+          ${task.dueDate?`<span class="dlbl${ds==='overdue'?' overdue':ds==='today'?' today':ds==='soon'?' soon':''}">${fmtDue(task.dueDate)}</span>`:''}
+          <span class="clbl">Added ${fmtDate(task.createdAt)}</span>
+          ${task.pinned?`<span style="font-size:10px;color:#FF9F0A;font-weight:700;">📌</span>`:''}
+        </div>
+      </div>
+      <div class="t-acts">
+        <button class="abt pin" title="${task.pinned?'Unpin':'Pin'}" onclick="pin(${task.id})">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M5 1h2M6 1v3l2 2H4L6 4V1zM6 7v4M4 11h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <button class="abt edit" title="Edit (dblclick)" onclick="startEdit(${task.id})">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M1.5 10.5l2.3-.5 6.4-6.4-1.8-1.8-6.4 6.4-.5 2.3z" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <button class="abt del" title="Delete" onclick="del(${task.id})">
+          <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M1 1l8 8M9 1l-8 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </button>
+      </div>
+    `;
+    card.appendChild(item);
+  });
+  container.appendChild(card);
+  buildChips();
+}
+
+// ─── KEYBOARD SHORTCUTS ───────────────────────────────────────────
+document.getElementById('addInp').addEventListener('keydown', e => {
+  if (e.key === 'Enter') addTask();
+});
+document.getElementById('noteInp').addEventListener('keydown', e => {
+  if (e.key === 'Enter') { e.preventDefault(); addTask(); }
+});
+document.addEventListener('keydown', e => {
+  if (e.key === '/' && document.activeElement.tagName !== 'INPUT') {
+    e.preventDefault(); document.getElementById('searchInp').focus();
+  }
+  if (e.key === 'Escape') {
+    cancelEdit();
+    document.getElementById('searchInp').blur();
+    document.getElementById('addInp').blur();
+  }
+});
+
+// ─── BOOT ─────────────────────────────────────────────────────────
+buildChips();
+render();
+</script>
+</body>
+</html>
