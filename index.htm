@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Workspace · Yagnesh</title>
+<title>Yagnik's Todos</title>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
@@ -167,6 +167,23 @@ footer{border-top:1px solid rgba(255,255,255,.04);padding:22px 0;margin-top:16px
   white-space:nowrap;z-index:999;}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
 
+/* ── EXPORT MODAL ── */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);display:flex;align-items:center;justify-content:center;z-index:900;opacity:0;pointer-events:none;transition:opacity .25s;}
+.modal-overlay.open{opacity:1;pointer-events:all;}
+.modal{background:#111;border:1px solid rgba(255,255,255,.1);border-radius:22px;padding:28px 28px 22px;width:320px;transform:scale(.94) translateY(10px);transition:all .28s cubic-bezier(.25,.46,.45,.94);}
+.modal-overlay.open .modal{transform:scale(1) translateY(0);}
+.modal-title{font-size:15px;font-weight:700;letter-spacing:-.02em;margin-bottom:6px;}
+.modal-sub{font-size:12px;color:rgba(255,255,255,.3);margin-bottom:20px;font-weight:500;}
+.exp-opts{display:flex;flex-direction:column;gap:8px;margin-bottom:20px;}
+.exp-opt{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:13px 16px;display:flex;align-items:center;gap:12px;cursor:pointer;transition:all .18s;text-align:left;}
+.exp-opt:hover{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.15);}
+.exp-ico{font-size:18px;width:32px;text-align:center;}
+.exp-info strong{display:block;font-size:13px;font-weight:700;letter-spacing:-.01em;margin-bottom:2px;}
+.exp-info span{font-size:11px;color:rgba(255,255,255,.32);font-weight:500;}
+.modal-cancel{width:100%;background:none;border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:10px;font-family:var(--font);font-size:13px;font-weight:600;color:rgba(255,255,255,.3);transition:all .18s;}
+.modal-cancel:hover{color:rgba(255,255,255,.6);border-color:rgba(255,255,255,.15);}
+.abt.wa:hover{background:rgba(37,211,102,.12);color:#25D166;}
+
 /* ── PINNED HIGHLIGHT ── */
 .t-item.pinned{border-left:2px solid #FF9F0A;}
 
@@ -210,8 +227,8 @@ footer{border-top:1px solid rgba(255,255,255,.04);padding:22px 0;margin-top:16px
     <div class="sel-wrap">
       <select class="ctrl-sel" id="tagFilter" onchange="render()">
         <option value="">All tags</option>
-        <option value="design">Design</option>
-        <option value="code">Code</option>
+        <option value="music">Music Class</option>
+        <option value="payments">Payment(s)</option>
         <option value="study">Study</option>
         <option value="personal">Personal</option>
         <option value="urgent">Urgent</option>
@@ -230,7 +247,8 @@ footer{border-top:1px solid rgba(255,255,255,.04);padding:22px 0;margin-top:16px
       <svg class="sel-arr" width="10" height="6" viewBox="0 0 10 6" fill="none"><path d="M1 1l4 4 4-4" stroke="white" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
     </div>
     <button class="ctrl-btn" onclick="clearDone()">Clear done</button>
-    <button class="ctrl-btn" onclick="exportTasks()">Export</button>
+    <button class="ctrl-btn" onclick="openExport()">Export ↓</button>
+    <button class="ctrl-btn" onclick="shareWhatsApp()" style="color:rgba(255,255,255,.35);">WhatsApp ↗</button>
   </div>
 
   <!-- ADD TASK -->
@@ -279,17 +297,44 @@ footer{border-top:1px solid rgba(255,255,255,.04);padding:22px 0;margin-top:16px
   </footer>
 </div>
 
+<!-- EXPORT MODAL -->
+<div class="modal-overlay" id="exportModal" onclick="if(event.target===this)closeExport()">
+  <div class="modal">
+    <div class="modal-title">Export Tasks</div>
+    <div class="modal-sub">Choose your format</div>
+    <div class="exp-opts">
+      <button class="exp-opt" onclick="doExport('txt')">
+        <span class="exp-ico">📄</span>
+        <div class="exp-info"><strong>.TXT</strong><span>Plain text, works everywhere</span></div>
+      </button>
+      <button class="exp-opt" onclick="doExport('csv')">
+        <span class="exp-ico">📊</span>
+        <div class="exp-info"><strong>.CSV / Excel</strong><span>Open in Google Sheets or Excel</span></div>
+      </button>
+      <button class="exp-opt" onclick="doExport('md')">
+        <span class="exp-ico">📝</span>
+        <div class="exp-info"><strong>.MD Markdown</strong><span>For Notion, Obsidian, GitHub</span></div>
+      </button>
+      <button class="exp-opt" onclick="doExport('pdf')">
+        <span class="exp-ico">🖨️</span>
+        <div class="exp-info"><strong>.PDF</strong><span>Print or save as PDF via browser</span></div>
+      </button>
+    </div>
+    <button class="modal-cancel" onclick="closeExport()">Cancel</button>
+  </div>
+</div>
+
 <!-- TOAST -->
 <div class="toast" id="toast"></div>
 
 <script>
 // ─── CONSTANTS ────────────────────────────────────────────────────
 const TAGS = {
-  design:   {c:'#BF9354',bg:'rgba(191,147,84,.14)'},
-  code:     {c:'#5AC8FA',bg:'rgba(90,200,250,.12)'},
-  study:    {c:'#BF5AF2',bg:'rgba(191,90,242,.12)'},
-  personal: {c:'#FF6B81',bg:'rgba(255,107,129,.12)'},
-  urgent:   {c:'#FF453A',bg:'rgba(255,69,58,.13)'},
+  music:    {c:'#BF9354',bg:'rgba(191,147,84,.14)',  lbl:'Music Class'},
+  payments: {c:'#5AC8FA',bg:'rgba(90,200,250,.12)',  lbl:'Payment(s)'},
+  study:    {c:'#BF5AF2',bg:'rgba(191,90,242,.12)',  lbl:'Study'},
+  personal: {c:'#FF6B81',bg:'rgba(255,107,129,.12)', lbl:'Personal'},
+  urgent:   {c:'#FF453A',bg:'rgba(255,69,58,.13)',   lbl:'Urgent'},
 };
 const PRI = {
   high:   {c:'#FF453A',bg:'rgba(255,69,58,.12)',lbl:'High',ord:0},
@@ -299,7 +344,7 @@ const PRI = {
 
 // ─── STATE ────────────────────────────────────────────────────────
 let tasks   = JSON.parse(localStorage.getItem('ws_tasks_v3') || '[]');
-let selTag  = 'code';
+let selTag  = 'music';
 let selPri  = 'medium';
 let filter  = 'all';
 let editing = null;
@@ -310,10 +355,14 @@ function save() { localStorage.setItem('ws_tasks_v3', JSON.stringify(tasks)); }
 const today = () => new Date().toISOString().slice(0,10);
 function tick() {
   const n = new Date();
-  document.getElementById('hdrDate').textContent =
-    n.toLocaleDateString('en-IN',{weekday:'short',day:'numeric',month:'short',year:'numeric'}).toUpperCase();
-  document.getElementById('hdrTime').textContent =
-    n.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',hour12:true});
+  const yyyy = n.getFullYear();
+  const mm   = String(n.getMonth()+1).padStart(2,'0');
+  const dd   = String(n.getDate()).padStart(2,'0');
+  const day  = n.toLocaleDateString('en-IN',{weekday:'short'}).toUpperCase();
+  document.getElementById('hdrDate').textContent = `${day}  ${yyyy}/${mm}/${dd}`;
+  const hh = String(n.getHours()).padStart(2,'0');
+  const mi = String(n.getMinutes()).padStart(2,'0');
+  document.getElementById('hdrTime').textContent = `${hh}:${mi}`;
 }
 setInterval(tick, 1000);
 
@@ -343,10 +392,10 @@ function fmtDate(ts) {
 function buildChips() {
   const tc = document.getElementById('tagChips');
   tc.innerHTML = '';
-  Object.entries(TAGS).forEach(([tag,{c,bg}]) => {
+  Object.entries(TAGS).forEach(([tag,{c,bg,lbl}]) => {
     const b = document.createElement('button');
     b.className = 'chip'+(selTag===tag?' on':'');
-    b.textContent = tag; b.style.background = bg; b.style.color = c;
+    b.textContent = lbl; b.style.background = bg; b.style.color = c;
     b.onclick = () => { selTag = tag; buildChips(); };
     tc.appendChild(b);
   });
@@ -425,28 +474,109 @@ function clearDone() {
   showToast(`Cleared ${c} task${c!==1?'s':''}`);
 }
 
-// ─── EXPORT ─────────────────────────────────────────────────────
-function exportTasks() {
-  const lines = ['# My Workspace — Exported '+new Date().toLocaleDateString('en-IN'),''];
+// ─── EXPORT MODAL ────────────────────────────────────────────────
+function openExport()  { document.getElementById('exportModal').classList.add('open'); }
+function closeExport() { document.getElementById('exportModal').classList.remove('open'); }
+
+function doExport(fmt) {
+  closeExport();
+  const d = today();
   const pen = tasks.filter(t=>!t.done);
   const don = tasks.filter(t=>t.done);
-  if (pen.length) {
-    lines.push('## Pending');
-    pen.forEach(t => {
-      lines.push(`- [ ] [${t.priority.toUpperCase()}] [${t.tag}] ${t.text}${t.dueDate?' (due '+t.dueDate+')':''}${t.note?' — '+t.note:''}`)
+
+  if (fmt === 'txt') {
+    let out = `YAGNIK'S TODOS — ${d}\n${'─'.repeat(36)}\n\nPENDING (${pen.length})\n`;
+    pen.forEach((t,i) => {
+      out += `\n${i+1}. [${(PRI[t.priority]||PRI.medium).lbl.toUpperCase()}] ${t.text}`;
+      if (t.note)    out += `\n   Note: ${t.note}`;
+      if (t.dueDate) out += `\n   Due:  ${t.dueDate}`;
+      out += `\n   Tag:  ${(TAGS[t.tag]||{lbl:t.tag}).lbl}`;
     });
-    lines.push('');
+    out += `\n\n${'─'.repeat(36)}\nDONE (${don.length})\n`;
+    don.forEach((t,i) => out += `\n${i+1}. ✓ ${t.text}`);
+    dl(out, `yagnik-todos-${d}.txt`, 'text/plain');
+    showToast('Exported as .TXT ↓');
+
+  } else if (fmt === 'csv') {
+    const rows = [['Status','Text','Tag','Priority','Due Date','Note','Added']];
+    tasks.forEach(t => rows.push([
+      t.done?'Done':'Pending',
+      `"${t.text.replace(/"/g,'""')}"`,
+      (TAGS[t.tag]||{lbl:t.tag}).lbl,
+      (PRI[t.priority]||PRI.medium).lbl,
+      t.dueDate||'',
+      `"${(t.note||'').replace(/"/g,'""')}"`,
+      fmtDate(t.createdAt)
+    ]));
+    dl(rows.map(r=>r.join(',')).join('\n'), `yagnik-todos-${d}.csv`, 'text/csv');
+    showToast('Exported as .CSV ↓');
+
+  } else if (fmt === 'md') {
+    const lines = [`# Yagnik's Todos — ${d}`,'',' Exported from personal workspace',''];
+    if (pen.length) {
+      lines.push(`## ⏳ Pending (${pen.length})`, '');
+      pen.forEach(t => {
+        lines.push(`- [ ] **${t.text}**`);
+        if (t.note)    lines.push(`  > ${t.note}`);
+        if (t.dueDate) lines.push(`  📅 Due: \`${t.dueDate}\``);
+        lines.push(`  🏷 \`${(TAGS[t.tag]||{lbl:t.tag}).lbl}\` · ${(PRI[t.priority]||PRI.medium).lbl} priority`,'');
+      });
+    }
+    if (don.length) {
+      lines.push(`## ✅ Done (${don.length})`, '');
+      don.forEach(t => lines.push(`- [x] ~~${t.text}~~`));
+    }
+    dl(lines.join('\n'), `yagnik-todos-${d}.md`, 'text/markdown');
+    showToast('Exported as .MD ↓');
+
+  } else if (fmt === 'pdf') {
+    const w = window.open('','_blank');
+    const pen2 = tasks.filter(t=>!t.done), don2 = tasks.filter(t=>t.done);
+    let rows = pen2.map(t=>`<tr><td>${t.text}</td><td>${(TAGS[t.tag]||{lbl:t.tag}).lbl}</td><td>${(PRI[t.priority]||PRI.medium).lbl}</td><td>${t.dueDate||'—'}</td><td>${t.note||'—'}</td></tr>`).join('');
+    let rows2= don2.map(t=>`<tr style="color:#999;text-decoration:line-through"><td>${t.text}</td><td>${(TAGS[t.tag]||{lbl:t.tag}).lbl}</td><td>—</td><td>—</td><td>—</td></tr>`).join('');
+    w.document.write(`<!DOCTYPE html><html><head><title>Yagnik's Todos</title><style>
+      *{box-sizing:border-box;margin:0;padding:0;font-family:-apple-system,sans-serif;}
+      body{padding:40px;color:#111;font-size:13px;}
+      h1{font-size:26px;font-weight:800;letter-spacing:-.03em;margin-bottom:4px;}
+      .sub{color:#888;font-size:11px;margin-bottom:28px;}
+      h2{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#555;margin:24px 0 10px;}
+      table{width:100%;border-collapse:collapse;}
+      th{text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#aaa;padding:6px 10px;border-bottom:1px solid #eee;}
+      td{padding:9px 10px;border-bottom:1px solid #f0f0f0;vertical-align:top;}
+      @media print{body{padding:20px;}}
+    </style></head><body>
+      <h1>Yagnik's Todos</h1><div class="sub">Exported ${d} · ${tasks.length} tasks total</div>
+      <h2>⏳ Pending (${pen2.length})</h2>
+      <table><thead><tr><th>Task</th><th>Tag</th><th>Priority</th><th>Due</th><th>Note</th></tr></thead><tbody>${rows}</tbody></table>
+      ${don2.length?`<h2>✅ Done (${don2.length})</h2><table><thead><tr><th>Task</th><th>Tag</th><th>Priority</th><th>Due</th><th>Note</th></tr></thead><tbody>${rows2}</tbody></table>`:''}
+    </body></html>`);
+    w.document.close();
+    w.focus(); w.print();
+    showToast('PDF print dialog opened ↓');
   }
-  if (don.length) {
-    lines.push('## Done');
-    don.forEach(t => lines.push(`- [x] ${t.text}`));
-  }
-  const blob = new Blob([lines.join('\n')], {type:'text/markdown'});
+}
+
+function dl(content, filename, type) {
+  const blob = new Blob([content], {type});
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
-  a.download = 'workspace-'+today()+'.md';
+  a.download = filename;
   a.click(); URL.revokeObjectURL(a.href);
-  showToast('Exported as Markdown ↓');
+}
+
+// ─── WHATSAPP SHARE ───────────────────────────────────────────────
+function shareWhatsApp() {
+  const pen = tasks.filter(t=>!t.done);
+  if (!pen.length) { showToast('No pending tasks to share!'); return; }
+  let msg = `*Yagnik's Todos* 📋\n_${today()}_\n\n`;
+  pen.forEach((t,i) => {
+    msg += `${i+1}. ${t.done?'✅':'⏳'} *${t.text}*`;
+    if (t.dueDate) msg += ` (Due: ${t.dueDate})`;
+    msg += '\n';
+  });
+  msg += `\n_${pen.length} task${pen.length!==1?'s':''} pending_`;
+  window.open('https://wa.me/?text='+encodeURIComponent(msg), '_blank');
+  showToast('Opening WhatsApp ↗');
 }
 
 // ─── FILTER / SORT ────────────────────────────────────────────────
@@ -535,7 +665,7 @@ function render() {
         }
         ${task.note ? `<div class="t-note">${task.note}</div>` : ''}
         <div class="t-meta">
-          <span class="tbadge" style="background:${tbg};color:${tc}">${task.tag}</span>
+          <span class="tbadge" style="background:${tbg};color:${tc}">${(TAGS[task.tag]||{lbl:task.tag}).lbl}</span>
           <span class="pdot" style="background:${pc}"></span>
           <span class="plbl" style="color:${pc}">${(PRI[task.priority]||PRI.medium).lbl}</span>
           ${task.dueDate?`<span class="dlbl${ds==='overdue'?' overdue':ds==='today'?' today':ds==='soon'?' soon':''}">${fmtDue(task.dueDate)}</span>`:''}
